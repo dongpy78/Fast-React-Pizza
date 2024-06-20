@@ -13,13 +13,16 @@ function AppLayout() {
   // console.log(navigation);
 
   return (
-    <div className="layout">
+    <div className="grid h-screen grid-rows-[auto_1fr_auto] ">
       {isLoading && <Loader />}
+      
 
       <Header />
-      <main>
-        <Outlet />
-      </main>
+      <div className="overflow-auto">
+        <main className="max-w-3xl mx-auto ">
+          <Outlet />
+        </main>
+      </div>      
       <CartOverview />
     </div>
   );
