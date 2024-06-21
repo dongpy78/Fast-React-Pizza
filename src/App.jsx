@@ -12,12 +12,13 @@ import AppLayout from "./ui/AppLayout";
 // Tạo đường dẫn Router
 const router = createBrowserRouter([
   {
-    element: <AppLayout />,
+    element: <AppLayout />, // Chứa các components chính của ứng dụng: header, footer, hoặc thanh điều hướng
     // Xử lý lỗi
-    errorElement: <Error />,
+    errorElement: <Error />, // Component sẽ được hiển thị nếu có lỗi xảy ra trong bất cứ tuyến đường con nào
 
-    children: [
+    children: [ // Mảng children chứa các đối tượng định nghĩa các tuyến đường cụ thể của ứng dụng 
       {
+        // Component Home sẽ được hiển thị khi người dùng truy cập vào "/"
         path: "/",
         element: <Home />,
       },
