@@ -26,7 +26,6 @@ async function fetchAddress() {
 
 import { createSlice } from "@reduxjs/toolkit";
 
-
 //============USE REDUX TOOLKIT=============
 const initialState = { // bắt đầu với đối tượng initialState 
   username: '',
