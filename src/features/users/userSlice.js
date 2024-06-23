@@ -1,14 +1,35 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {getAddress} from '../../services/apiGeocoding';
 
 
-/*
 function getPosition() {
   return new Promise(function (resolve, reject) {
     navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 }
 
-async function fetchAddress() {
-  // 1) We get the user's geolocation position
+
+
+/* 
+Ta có thể thấy "fetchAddress" là một hàm không đồng bộ có nghĩa là chúng ta không thể gọi hàm này 
+trực tiếp bên trong bộ giảm tốc Redux, hãy nhớ rằng Redux về bản chất là hoàn toàn đồng bộ và đó là 
+lý do tại sao chúng ta phải sử dụng Thunks. Và "Thunk" là một phần mềm trung gian nằm giữa chính 
+"dispatch" và "reduces" 
+*/
+
+
+/*
+  TÓM TẮT NHỮNG GÌ ĐÃ LÀM 
+  Lần này ta sẽ tạo hàm "Thunk" của Redux Toolkit, và ta sẽ chuyển vào tên loại hành động và 
+  đối số thứ 2 ta chuyển vào hàm "Thunk" một "function" để mà khi hành động "user/fetchAddress"
+  này sẽ được gửi đi. Điều đặt biệt ở đây là "createAsyncThunk" cơ bản sẽ tạo ra 3 loại hành động bổ sung
+  Vì vậy 1 cho trạng thái lời hứa phụ thuộc, một cho trạng thái hoàn thành, một cho trạng thái bị
+  từ chối. Và ta sẽ xử lý các trường hợp này 
+*/
+// ========== THUNK ==========
+export const fetchAddress = createAsyncThunk('user/fetchAddress', async function() {
+  // 1) We get the user's geolocation position (Lấy vị trí định vị địa lý của người dùng được cung cấp bởi hàm getPosition ngay tại đây)
+  // Sau đó về cơ bản nó sẽ gọi 
   const positionObj = await getPosition();
   const position = {
     latitude: positionObj.coords.latitude,
@@ -20,15 +41,19 @@ async function fetchAddress() {
   const address = `${addressObj?.locality}, ${addressObj?.city} ${addressObj?.postcode}, ${addressObj?.countryName}`;
 
   // 3) Then we return an object with the data that we are interested in
+  // Payload of the FULFILLED state
   return { position, address };
-}
-*/
+});
 
-import { createSlice } from "@reduxjs/toolkit";
+
 
 //============USE REDUX TOOLKIT=============
 const initialState = { // bắt đầu với đối tượng initialState 
   username: '',
+  status: 'idle',
+  position: {},
+  address: '',
+  error: '',
 };
 
 const userSlice = createSlice({ 
@@ -39,6 +64,16 @@ const userSlice = createSlice({
       state.username = action.payload; // chúng ta có thể thay đổi "state.username" và đặt nó thành tên người dùng đã nhận.
     },
   },
+  extraReducers: (builder) => builder.addCase(fetchAddress.pending, (state, action)=>{state.status = 'loading';})
+  .addCase(fetchAddress.fulfilled, (state, action) => {
+    state.position = action.payload.position;
+    state.address = action.payload.address;
+    state.state = 'idle';
+  })
+  .addCase(fetchAddress.rejected, (state, action) => {
+    state.status = 'error';
+    state.error = action.error.message;
+  })
 });
 
 export const {updateName} = userSlice.actions; // xuất nó ra 
